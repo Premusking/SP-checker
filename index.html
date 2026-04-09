@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<!-- saved from url=(0049)file:///C:/Users/ELITEBOOK/Downloads/index_7.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stabilizer Activity Checker</title>
+  <script src="./index_files/chart.umd.js.download"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-page: #e8f5e9;
+      --bg-card: #ffffff;
+      --bg-secondary: #f1faf2;
+      --bg-input: #ffffff;
+      --text: #1a2e1a;
+      --text-secondary: #4a6b4a;
+      --text-tertiary: #7a9b7a;
+      --border: rgba(0,100,0,0.12);
+      --border-focus: #1D9E75;
+      --metric-bg: #d4edda;
+      --metric-text: #1a2e1a;
+      --swap-bg: #dbeafe; --swap-text: #1e40af;
+      --badgepill-bg: #fef3c7; --badgepill-text: #92400e;
+      --other-bg: #e5e7eb; --other-text: #374151;
+      --success: #15803d;
+      --btn-bg: #1D9E75; --btn-text: #e8f5e9; --btn-hover: #0F6E56;
+      --link: #0f6e56;
+      --toggle-bg: #c8e6c9; --toggle-icon: #1D9E75;
+      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --mono: 'SF Mono', 'Fira Code', monospace;
+    }
+
+    .dark {
+      --bg-page: #0f1a0f;
+      --bg-card: #1a2e1a;
+      --bg-secondary: #152515;
+      --bg-input: #1a2e1a;
+      --text: #e8f5e9;
+      --text-secondary: #9fc99f;
+      --text-tertiary: #6b9b6b;
+      --border: rgba(144,238,144,0.12);
+      --border-focus: #5DCAA5;
+      --metric-bg: #152515;
+      --metric-text: #e8f5e9;
+      --swap-bg: #1e3a5f; --swap-text: #93c5fd;
+      --badgepill-bg: #3a2a00; --badgepill-text: #fcd34d;
+      --other-bg: #2a2a2a; --other-text: #d1d5db;
+      --success: #4ade80;
+      --btn-bg: #1D9E75; --btn-text: #e8f5e9; --btn-hover: #0F6E56;
+      --link: #5DCAA5;
+      --toggle-bg: #1a3a1a; --toggle-icon: #5DCAA5;
+    }
+
+    html, body { height: 100%; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg-page);
+      color: var(--text);
+      min-height: 100vh;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .topbar {
+      display: flex; align-items: center; gap: 10px;
+      padding: 14px 24px;
+      background: var(--bg-card);
+      border-bottom: 0.5px solid var(--border);
+      position: sticky; top: 0; z-index: 10;
+    }
+
+    .logo {
+      width: 34px; height: 34px; border-radius: 8px;
+      background: #1D9E75;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 500; color: #e8f5e9; flex-shrink: 0;
+    }
+
+    .topbar-title { font-size: 15px; font-weight: 500; color: var(--text); }
+
+    .topbar-net {
+      font-size: 11px; background: var(--metric-bg); color: var(--text-secondary);
+      border-radius: 20px; padding: 3px 10px;
+      display: inline-flex; align-items: center; gap: 5px;
+    }
+
+    .ndot { width: 6px; height: 6px; border-radius: 50%; background: #1D9E75; }
+    .spacer { margin-left: auto; }
+
+    .toggle-btn {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--toggle-bg); border: 0.5px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; flex-shrink: 0; transition: opacity 0.15s;
+    }
+
+    .toggle-btn:hover { opacity: 0.75; }
+
+    .toggle-btn svg {
+      width: 16px; height: 16px;
+      stroke: var(--toggle-icon); fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    .hero { text-align: center; padding: 3rem 1rem 1.5rem; }
+
+    .hero-logo {
+      width: 56px; height: 56px; border-radius: 14px;
+      background: #1D9E75;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; font-weight: 500; color: #e8f5e9;
+      margin: 0 auto 1rem;
+    }
+
+    .hero h1 { font-size: 22px; font-weight: 500; color: var(--text); margin-bottom: 8px; }
+    .hero p { font-size: 13px; color: var(--text-secondary); }
+
+    .search-wrap { max-width: 560px; margin: 0 auto 1.5rem; padding: 0 1rem; }
+
+    .search-row { display: flex; gap: 8px; }
+
+    .search-row input {
+      flex: 1; padding: 11px 14px;
+      border: 0.5px solid var(--border); border-radius: 8px;
+      font-size: 13px; font-family: var(--mono);
+      background: var(--bg-input); color: var(--text);
+      transition: border 0.15s, box-shadow 0.15s;
+    }
+
+    .search-row input:focus {
+      outline: none; border-color: var(--border-focus);
+      box-shadow: 0 0 0 2px rgba(29,158,117,0.15);
+    }
+
+    .search-row input::placeholder { color: var(--text-tertiary); font-family: var(--font); }
+
+    .search-row button {
+      padding: 11px 22px; border: none; border-radius: 8px;
+      background: var(--btn-bg); color: var(--btn-text);
+      font-size: 13px; font-weight: 500; cursor: pointer; flex-shrink: 0;
+      transition: background 0.15s;
+    }
+
+    .search-row button:hover { background: var(--btn-hover); }
+    .search-row button:active { transform: scale(0.98); }
+
+    .hint { font-size: 11px; color: var(--text-tertiary); margin-top: 7px; text-align: center; }
+
+    .err { max-width: 560px; margin: 0 auto 1rem; padding: 0 1rem; }
+
+    .err-inner {
+      background: #fee2e2; color: #991b1b;
+      border-radius: 8px; padding: 10px 14px;
+      font-size: 13px; display: none;
+    }
+
+    .dark .err-inner { background: #3a0f0f; color: #fca5a5; }
+
+    .results { max-width: 700px; margin: 0 auto; padding: 0 1rem 3rem; }
+
+    .wallet-card {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 1rem; padding: 14px 16px;
+      background: var(--bg-card);
+      border: 0.5px solid var(--border); border-radius: 12px;
+    }
+
+    .w-avatar {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: var(--metric-bg);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 500; color: #085041; flex-shrink: 0;
+    }
+
+    .dark .w-avatar { color: #9fe1cb; }
+    .w-label { font-size: 13px; font-weight: 500; color: var(--text); }
+    .w-addr { font-size: 11px; font-family: var(--mono); color: var(--text-secondary); word-break: break-all; }
+
+    .net-badge {
+      margin-left: auto; font-size: 11px;
+      background: var(--metric-bg); color: var(--text-secondary);
+      border-radius: 20px; padding: 3px 9px;
+      display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0;
+    }
+
+    .contract-note { font-size: 11px; color: var(--text-tertiary); text-align: center; margin-bottom: 1rem; }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px; margin-bottom: 1rem;
+    }
+
+    @media (max-width: 480px) { .metrics { grid-template-columns: 1fr; } }
+
+    .metric { background: var(--metric-bg); border-radius: 8px; padding: 14px 16px; }
+    .metric-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; }
+    .metric-value { font-size: 24px; font-weight: 500; color: var(--metric-text); line-height: 1; }
+    .metric-sub { font-size: 11px; color: var(--text-tertiary); margin-top: 4px; }
+
+    .card {
+      background: var(--bg-card);
+      border: 0.5px solid var(--border); border-radius: 12px;
+      padding: 1rem 1.25rem; margin-bottom: 1rem;
+    }
+
+    .card-title { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 3px; }
+    .card-sub { font-size: 12px; color: var(--text-secondary); margin-bottom: 1rem; }
+
+    .legend { display: flex; gap: 14px; margin-bottom: 10px; flex-wrap: wrap; }
+    .legend-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-secondary); }
+    .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+    .tx-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 0; border-bottom: 0.5px solid var(--border);
+    }
+    .tx-row:last-child { border-bottom: none; }
+
+    .tx-type { font-size: 11px; font-weight: 500; padding: 3px 8px; border-radius: 20px; flex-shrink: 0; }
+    .tx-swap { background: var(--swap-bg); color: var(--swap-text); }
+    .tx-badge { background: var(--badgepill-bg); color: var(--badgepill-text); }
+    .tx-other { background: var(--other-bg); color: var(--other-text); }
+
+    .tx-hash {
+      font-size: 12px; color: var(--link); font-family: var(--mono);
+      flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-decoration: none;
+    }
+    .tx-hash:hover { text-decoration: underline; }
+    .tx-val { font-size: 12px; color: var(--text-secondary); flex-shrink: 0; }
+    .tx-age { font-size: 11px; color: var(--text-tertiary); flex-shrink: 0; min-width: 56px; text-align: right; }
+
+    .badge-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; }
+
+    .badge-card {
+      border: 0.5px solid var(--border); border-radius: 8px;
+      padding: 10px 12px; display: flex; align-items: center; gap: 8px;
+      background: var(--bg-secondary);
+    }
+
+    .badge-icon {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 500; flex-shrink: 0;
+    }
+
+    .badge-name { font-size: 12px; font-weight: 500; color: var(--text); }
+    .badge-desc { font-size: 11px; color: var(--text-secondary); }
+    .loading { text-align: center; padding: 1.5rem; color: var(--text-secondary); font-size: 13px; }
+    .empty { padding: 12px 0; color: var(--text-secondary); font-size: 13px; }
+
+    footer {
+      text-align: center; padding: 2rem;
+      font-size: 12px; color: var(--text-tertiary);
+    }
+    footer a { color: var(--link); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body id="app" class="dark">
+
+  <div class="topbar">
+    <div class="logo">ST</div>
+    <span class="topbar-title">Stabilizer</span>
+    <div class="topbar-net"><span class="ndot"></span>Sepolia testnet</div>
+    <div class="spacer"></div>
+    <div class="toggle-btn" onclick="toggleTheme()" title="Toggle dark / light mode">
+      <svg id="themeIcon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+    </div>
+  </div>
+
+  <div class="hero">
+    <div class="hero-logo">ST</div>
+    <h1>Stabilizer activity checker</h1>
+    <p>Paste any wallet address to view Stabilizer testnet activity on Sepolia</p>
+  </div>
+
+  <div class="search-wrap">
+    <div class="search-row">
+      <input type="text" id="walletInput" placeholder="Paste wallet address (0x...)" maxlength="42">
+      <button onclick="handleSearch()">Search</button>
+    </div>
+    <div class="hint">Searches interactions with the Stabilizer contract on Sepolia testnet</div>
+  </div>
+
+  <div class="err"><div class="err-inner" id="err-inner" style="display: none;">Failed to fetch data. Error: Failed to fetch</div></div>
+
+  <div id="results" style="display: block;">
+    <div class="results">
+      <div class="wallet-card">
+        <div class="w-avatar" id="w-avatar">10</div>
+        <div style="min-width:0;flex:1">
+          <div class="w-label">Wallet</div>
+          <div class="w-addr" id="w-addr">0x10deaB2681E4eAdbd1F2537aC14942253ee2A3fd</div>
+        </div>
+        <div class="net-badge"><span class="ndot"></span>Sepolia</div>
+      </div>
+
+      <div class="contract-note" id="contract-note">537 interactions with Stabilizer contract · 0xFa64...A78D</div>
+
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-label">Swaps</div>
+          <div class="metric-value" id="m-swaps">537</div>
+          <div class="metric-sub">swap interactions</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Volume</div>
+          <div class="metric-value" id="m-vol">0.0000 ETH</div>
+          <div class="metric-sub">ETH transacted</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Badges</div>
+          <div class="metric-value" id="m-badges">0</div>
+          <div class="metric-sub">badge events</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Transaction history</div>
+        <div class="card-sub" id="tx-sub">537 total interactions with Stabilizer contract</div>
+        <div class="legend">
+          <span class="legend-item"><span class="legend-dot" style="background:#1e40af"></span>Swap</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#92400e"></span>Badge</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#6b7280"></span>Other</span>
+        </div>
+        <div id="tx-list"><div class="tx-row">
+              <span class="tx-type tx-swap">swap</span>
+              <a class="tx-hash" href="https://sepolia.etherscan.io/tx/0xf1083459b832cc5750431a0c9ae191b713e2013a1397da24dfa5b6564311e1e1" target="_blank">0xf10834...11e1e1</a>
+              <span class="tx-val" style="color:var(--text-secondary)">
+                
+              </span>
+              <span class="tx-age">22h ago</span>
+            </div><div class="tx-row">
+              <span class="tx-type tx-swap">swap</span>
+              <a class="tx-hash" href="https://sepolia.etherscan.io/tx/0x4354e044c1ff8e3d37eb8ca93c09ecd3958d8e68d39bb4c39142a4fdb3b80ebe" target="_blank">0x4354e0...b80ebe</a>
+              <span class="tx-val" style="color:var(--text-secondary)">
+                
+              </span>
+              <span class="tx-age">22h ago</span>
+            </div><div class="tx-row">
+              <span class="tx-type tx-swap">swap</span>
+              <a class="tx-hash" href="https://sepolia.etherscan.io/tx/0x60ef6ec097e2610beca06759de7f2f1dcd016ea98dde45296dd1366dbc0a0cab" target="_blank">0x60ef6e...0a0cab</a>
+              <span class="tx-val" style="color:var(--text-secondary)">
+                
+              </span>
+              <span class="tx-age">22h ago</span>
+            </div><div class="tx-row">
+              <span class="tx-type tx-swap">swap</span>
+              <a class="tx-hash" href="https://sepolia.etherscan.io/tx/0x5bb4a2dd0ccda25d3294b2a8adfe393f51caa897849c033b19d8961ad9cb0db1" target="_blank">0x5bb4a2...cb0db1</a>
+              <span class="tx-val" style="color:var(--text-secondary)">
+                
+              </span>
+              <span class="tx-age">22h ago</span>
+            </div><div class="tx-row">
+              <span class="tx-type tx-swap">swap</span>
+              <a class="tx-hash" href="https://sepolia.etherscan.io/tx/0x0e24a4c451d9113e62db23120bfbe11749606f13985537040dd7bc2bdab34595" target="_blank">0x0e24a4...b34595</a>
+              <span class="tx-val" style="color:var(--text-secondary)">
+                
+              </span>
+              <span class="tx-age">22h ago</span>
+            </div><div class="tx-row">
+              <span class="tx-type tx-swap">swap</span>
+              <a class="tx-hash" href="https://sepolia.etherscan.io/tx/0x7d4a958d4fa9296dd66bd9714c350b069a7fb28f52cc4bab093661b2fd13ac08" target="_blank">0x7d4a95...13ac08</a>
+              <span class="tx-val" style="color:var(--text-secondary)">
+                
+              </span>
+              <span class="tx-age">22h ago</span>
+            </div><div class="tx-row">
+              <span class="tx-type tx-swap">swap</span>
+              <a class="tx-hash" href="https://sepolia.etherscan.io/tx/0x56d58146e626427c6491d232070712148fd427b045808d55d9046db4f9d3b1ec" target="_blank">0x56d581...d3b1ec</a>
+              <span class="tx-val" style="color:var(--text-secondary)">
+                
+              </span>
+              <span class="tx-age">22h ago</span>
+            </div><div class="tx-row">
+              <span class="tx-type tx-swap">swap</span>
+              <a class="tx-hash" href="https://sepolia.etherscan.io/tx/0x3e660b30294b4639f776d314edcae92542bc8706fbc526b6736bfd0275564987" target="_blank">0x3e660b...564987</a>
+              <span class="tx-val" style="color:var(--text-secondary)">
+                
+              </span>
+              <span class="tx-age">22h ago</span>
+            </div><div class="tx-row">
+              <span class="tx-type tx-swap">swap</span>
+              <a class="tx-hash" href="https://sepolia.etherscan.io/tx/0x28199a9f4bef9515951b5df83352c01fc5db7633ae26c611c7c20d74295511b7" target="_blank">0x28199a...5511b7</a>
+              <span class="tx-val" style="color:var(--text-secondary)">
+                
+              </span>
+              <span class="tx-age">22h ago</span>
+            </div><div class="tx-row">
+              <span class="tx-type tx-swap">swap</span>
+              <a class="tx-hash" href="https://sepolia.etherscan.io/tx/0x84c465ed720688c1353b36da016d1a2a32961093be63af227807b603c5eaddd2" target="_blank">0x84c465...eaddd2</a>
+              <span class="tx-val" style="color:var(--text-secondary)">
+                
+              </span>
+              <span class="tx-age">22h ago</span>
+            </div><div class="tx-row">
+              <span class="tx-type tx-swap">swap</span>
+              <a class="tx-hash" href="https://sepolia.etherscan.io/tx/0x7cdedaddf232ba834215ba1a8c7b65500f358a3bb57595bb68e463eec63c9ed8" target="_blank">0x7cdeda...3c9ed8</a>
+              <span class="tx-val" style="color:var(--text-secondary)">
+                
+              </span>
+              <span class="tx-age">22h ago</span>
+            </div><div class="tx-row">
+              <span class="tx-type tx-swap">swap</span>
+              <a class="tx-hash" href="https://sepolia.etherscan.io/tx/0x92e38a81ebe6a9d05614bead537958120eff750330684187b6fb80fe71928f18" target="_blank">0x92e38a...928f18</a>
+              <span class="tx-val" style="color:var(--text-secondary)">
+                
+              </span>
+              <span class="tx-age">22h ago</span>
+            </div><div class="tx-row">
+              <span class="tx-type tx-swap">swap</span>
+              <a class="tx-hash" href="https://sepolia.etherscan.io/tx/0xb1c0fbafa2a289a60a07d6fc1e1cdb7d6c5d8734d6204ad3d1f6e20c0e4f0f62" target="_blank">0xb1c0fb...4f0f62</a>
+              <span class="tx-val" style="color:var(--text-secondary)">
+                
+              </span>
+              <span class="tx-age">22h ago</span>
+            </div><div class="tx-row">
+              <span class="tx-type tx-swap">swap</span>
+              <a class="tx-hash" href="https://sepolia.etherscan.io/tx/0x060f07cd925ea637fa7995a5930554605201e8e70a3e4b9c721cb7e14f52561d" target="_blank">0x060f07...52561d</a>
+              <span class="tx-val" style="color:var(--text-secondary)">
+                
+              </span>
+              <span class="tx-age">22h ago</span>
+            </div><div class="tx-row">
+              <span class="tx-type tx-swap">swap</span>
+              <a class="tx-hash" href="https://sepolia.etherscan.io/tx/0xe24ee89470791859578b5337b60912c03467de6c942bb04f342ac131770c25ac" target="_blank">0xe24ee8...0c25ac</a>
+              <span class="tx-val" style="color:var(--text-secondary)">
+                
+              </span>
+              <span class="tx-age">22h ago</span>
+            </div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Activity over time</div>
+        <div class="card-sub">Transaction count by day</div>
+        <div style="position:relative;width:100%;height:220px;">
+          <canvas id="actChart" width="940" height="330" style="display: block; box-sizing: border-box; height: 220px; width: 626px;"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Badges earned</div>
+        <div class="card-sub">Badge events detected for this wallet</div>
+        <div id="badge-list" class="badge-grid"><div class="empty">No badge events found for this wallet yet.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    Powered by <a href="https://sepolia.etherscan.io/" target="_blank">Sepolia Etherscan</a>
+    &nbsp;·&nbsp;
+    Contract: <a href="https://sepolia.etherscan.io/address/0xFa6419a3d3503a016dF3A59F690734862CA2A78D" target="_blank">0xFa6419...78D</a>
+  </footer>
+
+  <script>
+    const CONTRACT = '0xFa6419a3d3503a016dF3A59F690734862CA2A78D';
+    const API_KEY  = '4IIBB8SINER3D38Z7QH8KJI8Y5UGVXNTEB';
+    const BASE     = 'https://api.etherscan.io/v2/api';
+    let actChart   = null;
+    let isDark     = false;
+
+    const sunIcon  = `<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`;
+    const moonIcon = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`;
+
+    function toggleTheme() {
+      isDark = !isDark;
+      document.getElementById('app').className = isDark ? 'dark' : '';
+      document.getElementById('themeIcon').innerHTML = isDark ? sunIcon : moonIcon;
+    }
+
+    document.getElementById('walletInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') handleSearch();
+    });
+
+    function timeAgo(ts) {
+      const s = Math.floor(Date.now() / 1000) - parseInt(ts);
+      if (s < 60)    return s + 's ago';
+      if (s < 3600)  return Math.floor(s / 60) + 'm ago';
+      if (s < 86400) return Math.floor(s / 3600) + 'h ago';
+      return Math.floor(s / 86400) + 'd ago';
+    }
+
+    function shortHash(h) { return h.slice(0, 8) + '...' + h.slice(-6); }
+    function shortAddr(a) { return a.slice(0, 6) + '...' + a.slice(-4); }
+    function weiToEth(w)  { return (parseFloat(w) / 1e18).toFixed(4); }
+
+    function classifyTx(tx) {
+      const fn  = (tx.functionName || '').toLowerCase();
+      const inp = (tx.input || '').toLowerCase();
+      if (fn.includes('swap') || inp.startsWith('0x38ed1739') || inp.startsWith('0x7ff36ab5') || inp.startsWith('0x18cbafe5') || fn.includes('exchange')) return 'swap';
+      if (fn.includes('badge') || fn.includes('mint') || fn.includes('award') || fn.includes('earn')) return 'badge';
+      return 'other';
+    }
+
+    function showErr(msg) {
+      const el = document.getElementById('err-inner');
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
+
+    function clearErr() { document.getElementById('err-inner').style.display = 'none'; }
+    function isValid(a) { return /^0x[0-9a-fA-F]{40}$/.test(a); }
+
+    async function handleSearch() {
+      const raw = document.getElementById('walletInput').value.trim();
+      clearErr();
+      if (!raw) { showErr('Please enter a wallet address.'); return; }
+      if (!isValid(raw)) { showErr('Invalid address — must start with 0x and be 42 characters long.'); return; }
+      await loadWallet(raw);
+    }
+
+    async function loadWallet(wallet) {
+      document.getElementById('results').style.display = 'none';
+      document.getElementById('tx-list').innerHTML    = '<div class="loading">Loading transactions...</div>';
+      document.getElementById('badge-list').innerHTML = '<div class="loading">Scanning for badges...</div>';
+      ['m-swaps', 'm-vol', 'm-badges'].forEach(id => document.getElementById(id).textContent = '—');
+
+      try {
+        const url  = `${BASE}?chainid=11155111&module=account&action=txlist&address=${wallet}&startblock=0&endblock=99999999&sort=desc&apikey=${API_KEY}`;
+        const res  = await fetch(url);
+        const data = await res.json();
+
+        if (data.status === '0' && data.message !== 'No transactions found') {
+          showErr('API error: ' + (data.result || data.message)); return;
+        }
+
+        const allTxs = Array.isArray(data.result) ? data.result : [];
+        const txs = allTxs.filter(tx =>
+          (tx.to   && tx.to.toLowerCase()   === CONTRACT.toLowerCase()) ||
+          (tx.from && tx.from.toLowerCase() === CONTRACT.toLowerCase())
+        );
+
+        document.getElementById('w-addr').textContent   = wallet;
+        document.getElementById('w-avatar').textContent = wallet.slice(2, 4).toUpperCase();
+        document.getElementById('contract-note').textContent =
+          `${txs.length} interaction${txs.length !== 1 ? 's' : ''} with Stabilizer contract · ${shortAddr(CONTRACT)}`;
+        document.getElementById('results').style.display = 'block';
+
+        let swaps = 0, badgeSet = new Set(), totalVol = 0;
+        const byDay = {};
+
+        txs.forEach(tx => {
+          const type = classifyTx(tx);
+          if (type === 'swap')  swaps++;
+          if (type === 'badge') badgeSet.add(tx.hash);
+          totalVol += parseFloat(tx.value || 0) / 1e18;
+          const d   = new Date(parseInt(tx.timeStamp) * 1000);
+          const key = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+          byDay[key] = (byDay[key] || 0) + 1;
+        });
+
+        document.getElementById('m-swaps').textContent  = swaps.toLocaleString();
+        document.getElementById('m-vol').textContent    = totalVol.toFixed(4) + ' ETH';
+        document.getElementById('m-badges').textContent = badgeSet.size.toLocaleString();
+        document.getElementById('tx-sub').textContent   =
+          `${txs.length} total interaction${txs.length !== 1 ? 's' : ''} with Stabilizer contract`;
+
+        const recent = txs.slice(0, 15);
+        if (recent.length === 0) {
+          document.getElementById('tx-list').innerHTML =
+            '<div class="empty">No interactions found with the Stabilizer contract for this wallet.</div>';
+        } else {
+          document.getElementById('tx-list').innerHTML = recent.map(tx => {
+            const type  = classifyTx(tx);
+            const cls   = type === 'swap' ? 'tx-swap' : type === 'badge' ? 'tx-badge' : 'tx-other';
+            const eth   = weiToEth(tx.value);
+            const isOut = tx.from.toLowerCase() === wallet.toLowerCase();
+            return `<div class="tx-row">
+              <span class="tx-type ${cls}">${type}</span>
+              <a class="tx-hash" href="https://sepolia.etherscan.io/tx/${tx.hash}" target="_blank">${shortHash(tx.hash)}</a>
+              <span class="tx-val" style="color:${isOut ? 'var(--text-secondary)' : 'var(--success)'}">
+                ${parseFloat(eth) > 0 ? (isOut ? '-' : '+') + eth + ' ETH' : ''}
+              </span>
+              <span class="tx-age">${timeAgo(tx.timeStamp)}</span>
+            </div>`;
+          }).join('');
+        }
+
+        const badgeTxs = txs.filter(tx => classifyTx(tx) === 'badge').slice(0, 6);
+        if (badgeTxs.length === 0) {
+          document.getElementById('badge-list').innerHTML =
+            '<div class="empty">No badge events found for this wallet yet.</div>';
+        } else {
+          const colors = ['#1D9E75','#185FA5','#854F0B','#993556','#534AB7','#639922'];
+          document.getElementById('badge-list').innerHTML = badgeTxs.map((tx, i) => `
+            <div class="badge-card">
+              <div class="badge-icon" style="background:${colors[i % colors.length]}20;color:${colors[i % colors.length]}">B</div>
+              <div>
+                <div class="badge-name">Badge #${i + 1}</div>
+                <div class="badge-desc">${timeAgo(tx.timeStamp)}</div>
+              </div>
+            </div>`).join('');
+        }
+
+        const dayKeys = Object.keys(byDay).reverse().slice(-14);
+        const dayVals = dayKeys.map(k => byDay[k]);
+
+        if (actChart) actChart.destroy();
+        actChart = new Chart(document.getElementById('actChart'), {
+          type: 'bar',
+          data: {
+            labels: dayKeys,
+            datasets: [{
+              label: 'Txns', data: dayVals,
+              backgroundColor: '#1D9E75', borderRadius: 4, borderWidth: 0
+            }]
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: { callbacks: { label: ctx => ' ' + ctx.parsed.y + ' txns' } }
+            },
+            scales: {
+              x: { ticks: { font: { size: 11 }, color: '#6b9b6b', autoSkip: true, maxTicksLimit: 7 }, grid: { display: false } },
+              y: { ticks: { font: { size: 11 }, color: '#6b9b6b', stepSize: 1 }, grid: { color: 'rgba(29,158,117,0.08)' } }
+            }
+          }
+        });
+
+      } catch (e) {
+        showErr('Failed to fetch data. Error: ' + e.message);
+      }
+    }
+  </script>
+
+
+</body></html>
